@@ -5,6 +5,8 @@ import os
 import pandas as pd
 import logging
 from tqdm import tqdm
+import json
+from urllib.request import urlopen
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -74,8 +76,40 @@ class DataDownloader:
         self.clean_up()
         logging.info("Process completed successfully!")
 
+    def load_geojson(self, name, url):
+        data_path = os.path.join('data', f'{name}.geojson')
+        if os.path.exists(data_path):
+            try:
+                with open(data_path, 'r', encoding='utf-8') as f:
+                    geojson = json.load(f)
+                logging.info(f"Successfully loaded GeoJSON data from {data_path}")
+                return geojson
+            except Exception as e:
+                logging.error(f"Failed to load GeoJSON data from {data_path}: {e}")
+                return None
+        else:
+            try:
+                with urlopen(url) as response:
+                    geojson = json.load(response)
+                # Save to local file
+                os.makedirs('data', exist_ok=True)
+                with open(data_path, 'w', encoding='utf-8') as f:
+                    json.dump(geojson, f)
+                logging.info(f"Successfully downloaded and saved GeoJSON data to {data_path}")
+                return geojson
+            except Exception as e:
+                logging.error(f"Failed to download GeoJSON data from {url}: {e}")
+                return None
+
 
 if __name__ == '__main__':
     url = 'https://files.data.gouv.fr/geo-dvf/latest/csv/2023/full.csv.gz'
+    regions_geojson_url = 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions.geojson'
+    departments_geojson_url = 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/departements.geojson'
+    communes_geojson_url = 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/communes.geojson'
+
     downloader = DataDownloader(url)
     downloader.run()
+    regions_geojson = downloader.load_geojson('regions', regions_geojson_url)
+    departments_geojson = downloader.load_geojson('departments', departments_geojson_url)
+    communes_geojson = downloader.load_geojson('communes', communes_geojson_url)
