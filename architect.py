@@ -71,7 +71,7 @@ def main():
         print(f"The directory '{root_dir}' does not exist.")
         return
 
-    output_file = "../../project_summary.txt"
+    output_file = "project_summary.txt"
 
     print("Generating project summary...")
     project_summary = generate_project_summary(root_dir)
