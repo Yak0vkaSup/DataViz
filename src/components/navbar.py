@@ -6,7 +6,7 @@ def Navbar():
         children=[
             dcc.Link('Home', href='/', className='nav-link'),
             dcc.Link('About', href='/about', className='nav-link'),
-            dcc.Link('Complex Page', href='/complex', className='nav-link'),
+            dcc.Link('Dashboard', href='/dashboard', className='nav-link'),
         ],
         className='navbar'
     )

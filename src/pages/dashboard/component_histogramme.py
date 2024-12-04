@@ -1,10 +1,10 @@
 from dash import html
 from dash import dcc
 
-def ComplexComponent():
+def HistogrammeComponent():
     return html.Div(
         children=[
-            html.H2('Complex Component'),
+            html.H2('Histogramme'),
             dcc.Input(
                 id='input-box',
                 type='text',
@@ -14,5 +14,5 @@ def ComplexComponent():
             html.Button('Submit', id='button', className='button'),
             html.Div(id='output-container', className='output')
         ],
-        className='complex-component'
+        className='histogramme-component'
     )

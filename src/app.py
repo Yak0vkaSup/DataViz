@@ -3,7 +3,7 @@ from dash.dependencies import Input, Output
 from dash import html, dcc
 from pages.home import HomePage
 from pages.about import AboutPage
-from pages.more_complex_page.layout import ComplexPage
+from pages.dashboard.layout import DashboardPage
 
 # Initialize the app
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
@@ -27,8 +27,8 @@ def display_page(pathname):
         return HomePage()
     elif pathname == '/about':
         return AboutPage()
-    elif pathname == '/complex':
-        return ComplexPage()
+    elif pathname == '/dashboard':
+        return DashboardPage()
     else:
         return html.H1('404 - Page not found', style={'textAlign': 'center'})
 

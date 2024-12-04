@@ -1,15 +1,19 @@
 from dash import html
 from DataViz.src.components import Header, Footer, Navbar
-from .page_specific_component import ComplexComponent
+from .component_chart import ChartComponent
+from .component_pie import PieComponent
+from .component_histogramme import HistogrammeComponent
 
-def ComplexPage():
+def DashboardPage():
     return html.Div(
         children=[
             Header(),
             Navbar(),
             html.Main(
                 children=[
-                    ComplexComponent(),
+                    ChartComponent(),
+                    PieComponent(),
+                    HistogrammeComponent(),
                 ],
                 className='main-content'
             ),
