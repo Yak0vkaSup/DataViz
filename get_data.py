@@ -70,6 +70,8 @@ class DataDownloader:
         self.unzip_file()
         logging.info("Unzipping complete. Loading the CSV into a DataFrame...")
         df = self.load_csv_to_dataframe()
+        logging.info("Cleaning duplicates")
+        df = df.drop_duplicates(subset='id_parcelle', keep='first')
         logging.info("Data loaded into DataFrame. Saving as pickle...")
         self.save_dataframe_as_pickle(df)
         logging.info("Cleaning up temporary files...")
@@ -113,3 +115,4 @@ if __name__ == '__main__':
     regions_geojson = downloader.load_geojson('regions', regions_geojson_url)
     departments_geojson = downloader.load_geojson('departments', departments_geojson_url)
     communes_geojson = downloader.load_geojson('communes', communes_geojson_url)
+
