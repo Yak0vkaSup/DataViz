@@ -1,5 +1,5 @@
 from dash import html
-from DataViz.src.components import Header, Footer, Navbar
+from src.components import Header, Footer, Navbar
 from .page_specific_component import ComplexComponent
 
 def ComplexPage():

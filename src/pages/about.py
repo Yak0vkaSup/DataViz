@@ -1,5 +1,5 @@
 from dash import html
-from DataViz.src.components import Header, Footer, Navbar
+from src.components import Header, Footer, Navbar
 
 def AboutPage():
     return html.Div(

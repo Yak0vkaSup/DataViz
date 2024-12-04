@@ -7,6 +7,7 @@ import logging
 from tqdm import tqdm
 import json
 from urllib.request import urlopen
+import ssl
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -80,6 +81,8 @@ class DataDownloader:
 
     def load_geojson(self, name, url):
         data_path = os.path.join('data', f'{name}.geojson')
+        ssl_context = ssl._create_unverified_context()  # Create an unverified SSL context
+
         if os.path.exists(data_path):
             try:
                 with open(data_path, 'r', encoding='utf-8') as f:
@@ -91,7 +94,7 @@ class DataDownloader:
                 return None
         else:
             try:
-                with urlopen(url) as response:
+                with urlopen(url, context=ssl_context) as response:
                     geojson = json.load(response)
                 # Save to local file
                 os.makedirs('data', exist_ok=True)
@@ -115,4 +118,3 @@ if __name__ == '__main__':
     regions_geojson = downloader.load_geojson('regions', regions_geojson_url)
     departments_geojson = downloader.load_geojson('departments', departments_geojson_url)
     communes_geojson = downloader.load_geojson('communes', communes_geojson_url)
-
