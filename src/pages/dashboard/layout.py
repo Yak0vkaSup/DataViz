@@ -1,5 +1,5 @@
 from dash import html
-from DataViz.src.components import Header, Footer, Navbar
+from components import Header, Footer, Navbar
 from .component_chart import ChartComponent
 from .component_pie import PieComponent
 from .component_histogramme import HistogrammeComponent
