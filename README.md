@@ -15,3 +15,5 @@ With the environment activated, install your project's dependencies using pip:
 
 bash
 pip install -r requirements.txt
+
+https://www.data.gouv.fr/fr/datasets/demandes-de-valeurs-foncieres-geolocalisees/
