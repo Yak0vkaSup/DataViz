@@ -62,22 +62,6 @@ class DataDownloader:
             os.remove(self.unzipped_filename)
         logging.info("Temporary files deleted.")
 
-    def run(self):
-        # Execute the whole process
-        logging.info("Starting the download process...")
-        self.download_file()
-        logging.info("Download complete. Unzipping the file...")
-        self.unzip_file()
-        logging.info("Unzipping complete. Loading the CSV into a DataFrame...")
-        df = self.load_csv_to_dataframe()
-        logging.info("Cleaning duplicates")
-        df = df.drop_duplicates(subset='id_parcelle', keep='first')
-        logging.info("Data loaded into DataFrame. Saving as pickle...")
-        self.save_dataframe_as_pickle(df)
-        logging.info("Cleaning up temporary files...")
-        self.clean_up()
-        logging.info("Process completed successfully!")
-
     def load_geojson(self, name, url):
         data_path = os.path.join('data', f'{name}.geojson')
         if os.path.exists(data_path):
@@ -103,6 +87,21 @@ class DataDownloader:
                 logging.error(f"Failed to download GeoJSON data from {url}: {e}")
                 return None
 
+    def run(self):
+        # Execute the whole process
+        logging.info("Starting the download process...")
+        self.download_file()
+        logging.info("Download complete. Unzipping the file...")
+        self.unzip_file()
+        logging.info("Unzipping complete. Loading the CSV into a DataFrame...")
+        df = self.load_csv_to_dataframe()
+        logging.info("Cleaning duplicates")
+        df = df.drop_duplicates(subset='id_parcelle', keep='first')
+        logging.info("Data loaded into DataFrame. Saving as pickle...")
+        self.save_dataframe_as_pickle(df)
+        logging.info("Cleaning up temporary files...")
+        self.clean_up()
+        logging.info("Process completed successfully!")
 
 if __name__ == '__main__':
     url = 'https://files.data.gouv.fr/geo-dvf/latest/csv/2023/full.csv.gz'
@@ -115,4 +114,3 @@ if __name__ == '__main__':
     regions_geojson = downloader.load_geojson('regions', regions_geojson_url)
     departments_geojson = downloader.load_geojson('departments', departments_geojson_url)
     communes_geojson = downloader.load_geojson('communes', communes_geojson_url)
-
