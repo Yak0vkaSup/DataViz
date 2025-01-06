@@ -20,7 +20,7 @@ def add_price_to_geojson(df, geojson_data, geojson_key):
     # Loop through each feature in the GeoJSON file and add the price per m²
     for feature in geojson_data['features']:
         code = feature['properties'][geojson_key]
-        # Add the price to the feature's properties if the department exists in the DataFrame
+        # Add the price to the feature s properties
         feature['properties']['average_price_per_m2'] = df_dict.get(code, None)
 
     return geojson_data
@@ -30,11 +30,9 @@ def create_choropleth_map(df, geojson_file, level, geojson_key, map_filename=Non
     Create a choropleth map showing the average price per square meter by the specified level,
     using a logarithmic scale to handle wide ranges of values.
     """
-    # Use "code_departement" if that matches your DataFrame
     if 'commune' in df.columns:
-        df = df.rename(columns={'commune': 'code'})  # Rename to match GeoJSON
+        df = df.rename(columns={'commune': 'code'})
 
-    # Use a static center for the map (center of France)
     center_lat, center_lon = 46.603354, 1.888334  # Center of France
 
     # Initialize the map
@@ -44,7 +42,7 @@ def create_choropleth_map(df, geojson_file, level, geojson_key, map_filename=Non
     geojson_data = add_price_to_geojson(df, geojson_file, geojson_key)
 
     # Apply logarithmic transformation to the prices to compress the scale
-    df['log_price_per_m2'] = np.log1p(df['average_price_per_m2'])  # log1p is log(1 + x), avoids log(0)
+    df['log_price_per_m2'] = np.log1p(df['average_price_per_m2'])
 
     # Define custom thresholds for color scaling based on logarithmic values
     thresholds = [df['log_price_per_m2'].min(), df['log_price_per_m2'].quantile(0.25),
@@ -56,8 +54,8 @@ def create_choropleth_map(df, geojson_file, level, geojson_key, map_filename=Non
         geo_data=geojson_data,
         name='choropleth',
         data=df,
-        columns=['code', 'log_price_per_m2'],  # Use the log-transformed prices
-        key_on=f'feature.properties.{geojson_key}',  # Use the correct key for the GeoJSON file
+        columns=['code', 'log_price_per_m2'],
+        key_on=f'feature.properties.{geojson_key}',
         fill_color='YlOrRd',  # Color scale from yellow to red
         fill_opacity=0.7,
         line_opacity=0.2,
@@ -90,7 +88,6 @@ def create_choropleth_map(df, geojson_file, level, geojson_key, map_filename=Non
     price_map.save(map_filename)
     print(f"Map has been saved as {map_filename}")
 
-    # Return the map file path for Dash integration
     return map_filename
 
 
@@ -100,7 +97,7 @@ def extract_departments(df, geojson_file):
     Extract unique department codes and optionally their names from the DataFrame or GeoJSON.
     """
 
-    # Extract department names from GeoJSON (if available)
+    # Extract department names from GeoJSON
     with open(geojson_file, 'r', encoding='utf-8') as f:
         geojson_data = json.load(f)
 
@@ -134,7 +131,7 @@ def create_choropleth_map_per_department(df, geojson_file, departments, geojson_
     with open(geojson_file, 'r', encoding='utf-8') as f:
         geojson_data = json.load(f)
 
-    # Iterate through each department
+
     for department in departments:
         department_code = department['code']
 
@@ -160,12 +157,10 @@ def create_choropleth_map_per_department(df, geojson_file, departments, geojson_
 
 
 def main():
-    # Specify the path to the pickle file (for communes, departements, or regions)
-    pickle_filename = os.path.join('data', 'prix_m2_par_commune.pkl')  # Change file depending on the level
-    geojson_filename = os.path.join('data', 'communes.geojson')  # GeoJSON file for departments
+    pickle_filename = os.path.join('data', 'prix_m2_par_commune.pkl')
+    geojson_filename = os.path.join('data', 'communes.geojson')
     geojson_filename_departements = os.path.join('data','departments.geojson')
 
-    # Load the grouped data (price per square meter by department)
     df_grouped = load_grouped_data(pickle_filename)
 
 
