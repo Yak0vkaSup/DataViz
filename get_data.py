@@ -7,10 +7,114 @@ import logging
 from tqdm import tqdm
 import json
 from urllib.request import urlopen
+from collections import defaultdict
 import ssl
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+DEPT_CODE_TO_REGION = {
+    '01': 'Auvergne-Rhône-Alpes',
+    '02': 'Hauts-de-France',
+    '03': 'Auvergne-Rhône-Alpes',
+    '04': 'Provence-Alpes-Côte d\'Azur',
+    '05': 'Provence-Alpes-Côte d\'Azur',
+    '06': 'Provence-Alpes-Côte d\'Azur',
+    '07': 'Auvergne-Rhône-Alpes',
+    '08': 'Grand Est',
+    '09': 'Occitanie',
+    '10': 'Grand Est',
+    '11': 'Occitanie',
+    '12': 'Occitanie',
+    '13': 'Provence-Alpes-Côte d\'Azur',
+    '14': 'Normandie',
+    '15': 'Auvergne-Rhône-Alpes',
+    '16': 'Nouvelle-Aquitaine',
+    '17': 'Nouvelle-Aquitaine',
+    '18': 'Centre-Val de Loire',
+    '19': 'Nouvelle-Aquitaine',
+    '2A': 'Corse',
+    '2B': 'Corse',
+    '21': 'Bourgogne-Franche-Comté',
+    '22': 'Bretagne',
+    '23': 'Nouvelle-Aquitaine',
+    '24': 'Nouvelle-Aquitaine',
+    '25': 'Bourgogne-Franche-Comté',
+    '26': 'Auvergne-Rhône-Alpes',
+    '27': 'Normandie',
+    '28': 'Centre-Val de Loire',
+    '29': 'Bretagne',
+    '30': 'Occitanie',
+    '31': 'Occitanie',
+    '32': 'Nouvelle-Aquitaine',
+    '33': 'Nouvelle-Aquitaine',
+    '34': 'Occitanie',
+    '35': 'Bretagne',
+    '36': 'Centre-Val de Loire',
+    '37': 'Centre-Val de Loire',
+    '38': 'Auvergne-Rhône-Alpes',
+    '39': 'Bourgogne-Franche-Comté',
+    '40': 'Nouvelle-Aquitaine',
+    '41': 'Centre-Val de Loire',
+    '42': 'Auvergne-Rhône-Alpes',
+    '43': 'Auvergne-Rhône-Alpes',
+    '44': 'Pays de la Loire',
+    '45': 'Centre-Val de Loire',
+    '46': 'Occitanie',
+    '47': 'Nouvelle-Aquitaine',
+    '48': 'Occitanie',
+    '49': 'Pays de la Loire',
+    '50': 'Normandie',
+    '51': 'Grand Est',
+    '52': 'Grand Est',
+    '53': 'Pays de la Loire',
+    '54': 'Grand Est',
+    '55': 'Grand Est',
+    '56': 'Bretagne',
+    '57': 'Grand Est',
+    '58': 'Bourgogne-Franche-Comté',
+    '59': 'Hauts-de-France',
+    '60': 'Hauts-de-France',
+    '61': 'Normandie',
+    '62': 'Hauts-de-France',
+    '63': 'Auvergne-Rhône-Alpes',
+    '64': 'Nouvelle-Aquitaine',
+    '65': 'Occitanie',
+    '66': 'Occitanie',
+    '67': 'Grand Est',
+    '68': 'Grand Est',
+    '69': 'Auvergne-Rhône-Alpes',
+    '70': 'Bourgogne-Franche-Comté',
+    '71': 'Bourgogne-Franche-Comté',
+    '72': 'Pays de la Loire',
+    '73': 'Auvergne-Rhône-Alpes',
+    '74': 'Auvergne-Rhône-Alpes',
+    '75': 'Île-de-France',
+    '76': 'Normandie',
+    '77': 'Île-de-France',
+    '78': 'Île-de-France',
+    '79': 'Nouvelle-Aquitaine',
+    '80': 'Hauts-de-France',
+    '81': 'Occitanie',
+    '82': 'Occitanie',
+    '83': 'Provence-Alpes-Côte d\'Azur',
+    '84': 'Provence-Alpes-Côte d\'Azur',
+    '85': 'Pays de la Loire',
+    '86': 'Nouvelle-Aquitaine',
+    '87': 'Nouvelle-Aquitaine',
+    '88': 'Grand Est',
+    '89': 'Bourgogne-Franche-Comté',
+    '90': 'Bourgogne-Franche-Comté',
+    '91': 'Île-de-France',
+    '92': 'Île-de-France',
+    '93': 'Île-de-France',
+    '94': 'Île-de-France',
+    '95': 'Île-de-France',
+    '971': 'Guadeloupe',
+    '972': 'Martinique',
+    '973': 'Guyane',
+    '974': 'La Réunion',
+    '976': 'Mayotte'
+}
 
 class DataDownloader:
     def __init__(self, url, download_folder='data', filename='full.csv.gz'):
@@ -105,7 +209,103 @@ class DataDownloader:
             except Exception as e:
                 logging.error(f"Failed to download GeoJSON data from {url}: {e}")
                 return None
+def extract_department_code(commune_code):
+    """
+    Extracts the department code from the commune's INSEE code.
+    Rules:
+    - Overseas departments: start with '97' -> use first three chars ('971', '972', '973', '974', '976')
+    - Corsica: '2A' or '2B'
+    - Else: first two chars
+    """
+    if commune_code.startswith('97'):
+        # Overseas departments or regions
+        return commune_code[:3]
 
+    if commune_code.startswith('2A') or commune_code.startswith('2B'):
+        # Corsica
+        return commune_code[:2]
+
+    # Default case: first two chars
+    return commune_code[:2]
+def build_regions_dict(regions_geojson):
+    return {
+        feature['properties']['code']: feature['properties']['nom']
+        for feature in regions_geojson['features']
+    }
+
+
+def build_departments_dict(departments_geojson):
+    departments_dict = {}
+    for feature in departments_geojson['features']:
+        dept_code = feature['properties']['code']
+        dept_name = feature['properties']['nom']
+        region_name = DEPT_CODE_TO_REGION.get(dept_code)
+
+        if not region_name:
+            region_name = "Inconnue"
+
+        departments_dict[dept_code] = {
+            'name': dept_name,
+            'region_code': None,
+            'region_name': region_name
+        }
+    return departments_dict
+
+
+def build_communes_dict(communes_geojson):
+    communes_dict = {}
+    for feature in communes_geojson['features']:
+        commune_code = feature['properties']['code']
+        commune_name = feature['properties']['nom']
+        dept_code = extract_department_code(commune_code)
+        communes_dict[commune_code] = {
+            'name': commune_name,
+            'department_code': dept_code
+        }
+    return communes_dict
+
+
+def build_region_dept_commune_map(communes_dict, departments_dict):
+    inverted_regions = {name: code for code, name in regions_dict.items()}
+    # First, we need a structure to hold data before sorting and finalizing.
+    region_dept_commune_map = {}
+
+    for ccode, cinfo in communes_dict.items():
+        dept_code = cinfo['department_code']
+        commune_name = cinfo['name']
+        dept_info = departments_dict.get(dept_code)
+
+        if dept_info:
+            region_name = dept_info['region_name']
+            dept_name = dept_info['name']
+            region_code = inverted_regions.get(region_name, None)
+
+            # Ensure region key exists
+            if region_name not in region_dept_commune_map:
+                region_dept_commune_map[region_name] = {
+                    'code': region_code,
+                    'departments': {}
+                }
+
+            # Ensure department key exists under this region
+            if dept_name not in region_dept_commune_map[region_name]['departments']:
+                region_dept_commune_map[region_name]['departments'][dept_name] = {
+                    'code': dept_code,
+                    'communes': []
+                }
+
+            # Append the commune as a dict with code and name
+            region_dept_commune_map[region_name]['departments'][dept_name]['communes'].append({
+                'code': ccode,
+                'name': commune_name
+            })
+
+    # Optionally sort the communes by name
+    for region_name, rdata in region_dept_commune_map.items():
+        for dept_name, ddata in rdata['departments'].items():
+            ddata['communes'].sort(key=lambda x: x['name'])
+
+    return region_dept_commune_map
 
 if __name__ == '__main__':
     url = 'https://files.data.gouv.fr/geo-dvf/latest/csv/2023/full.csv.gz'
@@ -118,3 +318,17 @@ if __name__ == '__main__':
     regions_geojson = downloader.load_geojson('regions', regions_geojson_url)
     departments_geojson = downloader.load_geojson('departments', departments_geojson_url)
     communes_geojson = downloader.load_geojson('communes', communes_geojson_url)
+
+    regions_dict = build_regions_dict(regions_geojson)
+    departments_dict = build_departments_dict(departments_geojson)
+    communes_dict = build_communes_dict(communes_geojson)
+    region_dept_commune_map = build_region_dept_commune_map(communes_dict, departments_dict)
+
+    # Save the map to a JSON file
+    output_path = 'data/region_dept_commune_map.json'
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(region_dept_commune_map, f, ensure_ascii=False, indent=2)
+    logging.info(f"Saved region-department-commune map to {output_path}")
+
+    # Optional: print a sample
+    print(json.dumps(region_dept_commune_map, ensure_ascii=False, indent=2))

@@ -1,6 +1,6 @@
 from dash import html
 from src.components import Header, Footer, Navbar
-from .map import MapComponent
+from src.pages.dashboard.component_map import MapComponent
 
 def MapPage():
     return html.Div(
