@@ -7,12 +7,26 @@ import os
 DATA_FILE = os.path.join(DATA_DIR, 'full_with_region.pkl')
 data = pd.read_pickle(DATA_FILE)
 
-# Layout for the chart
+# Layout for the chart with moving average slider
 def ChartComponent():
     return html.Div(
         children=[
-            html.H2('Price Movement Over Time'),
+            html.H2('Price Movement Over Time with Moving Average'),
             dcc.Graph(id='price-movement-chart'),
+            html.Div(
+                children=[
+                    html.Label('Moving Average Window:'),
+                    dcc.Slider(
+                        id='ma-slider',
+                        min=7,
+                        max=30,
+                        step=1,
+                        value=14,  # Default window size
+                        marks={i: str(i) for i in range(7, 31, 5)},
+                    )
+                ],
+                style={'marginTop': '20px'}
+            ),
         ],
         className='chart-component'
     )
@@ -20,9 +34,9 @@ def ChartComponent():
 # Callback to update the chart
 @callback(
     Output('price-movement-chart', 'figure'),
-    Input('selected-location', 'data'),
+    [Input('selected-location', 'data'), Input('ma-slider', 'value')],
 )
-def update_chart(selected_location):
+def update_chart(selected_location, ma_window):
     if not selected_location:
         return {
             'data': [],
@@ -59,6 +73,15 @@ def update_chart(selected_location):
     filtered_data['date_mutation'] = pd.to_datetime(filtered_data['date_mutation'])
     time_series = filtered_data.groupby('date_mutation')['price_per_m2'].mean().reset_index()
 
+    # Create a new column with filled values for MA calculation
+    all_dates = pd.date_range(start=time_series['date_mutation'].min(), end=time_series['date_mutation'].max())
+    time_series_filled = time_series.set_index('date_mutation').reindex(all_dates, fill_value=0).reset_index()
+    time_series_filled.columns = ['date_mutation', 'price_per_m2']
+    time_series['price_per_m2_filled'] = time_series_filled['price_per_m2']
+
+    # Add a moving average based on the filled column
+    time_series['moving_average'] = time_series['price_per_m2_filled'].rolling(window=ma_window, min_periods=1).mean()
+
     # Create the figure
     figure = {
         'data': [
@@ -67,6 +90,12 @@ def update_chart(selected_location):
                 'y': time_series['price_per_m2'],
                 'type': 'line',
                 'name': 'Average Price per m²',
+            },
+            {
+                'x': time_series['date_mutation'],
+                'y': time_series['moving_average'],
+                'type': 'line',
+                'name': f'{ma_window}-Day Moving Average',
             }
         ],
         'layout': {
