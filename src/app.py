@@ -1,4 +1,5 @@
 import dash
+from click import style
 from dash.dependencies import Input, Output
 from dash import html, dcc
 from pages.home import HomePage
@@ -7,14 +8,17 @@ from pages.dashboard.layout import DashboardPage
 
 # Initialize the app
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
-server = app.server  # For deploying to a server
+server = app.server
 
 # Define the app layout
 app.layout = html.Div(
     children=[
         dcc.Location(id='url', refresh=False),
         html.Div(id='page-content')
-    ]
+    ],
+    style = {
+      'background-color': '#FFFFFF',
+    }
 )
 
 # Update page content based on the URL

@@ -11,7 +11,6 @@ map = load_region_dept_commune_map()
 def PieComponent():
     return html.Div(
         children=[
-            html.H2('Pie Chart of Type Local'),
             dcc.Graph(id='type-local-pie-chart'),
         ],
     )
@@ -29,10 +28,12 @@ def update_pie_chart(selected_location):
 
     # Retrieve numeric codes for filtering
     region = selected_location.get('region')
-    department_code = selected_location.get('department_code')
     department = selected_location.get('department')
-    commune_code = selected_location.get('commune_code')
     commune = selected_location.get('commune')
+
+    department_code = selected_location.get('department_code')
+    commune_code = selected_location.get('commune_code')
+    region_code = selected_location.get('region_code')
 
     title = ''
     # Filter data for the selected location
@@ -40,19 +41,19 @@ def update_pie_chart(selected_location):
         filtered_data = data[
             (data['code_commune'] == commune_code)
         ]
-        title = f'Type Local Distribution for Commune {commune}'
+        title = f'Type Local Distribution for Commune {commune}, {commune_code}'
     elif department_code:
         filtered_data = data[
             (data['code_departement'] == department_code)
         ]
-        title = f'Type Local Distribution for Departament {department}'
+        title = f'Type Local Distribution for Departament {department}, {department_code}'
     else:
         departments = map[region]['departments']
         department_codes = [dept_info['code'] for dept_info in departments.values()]
         filtered_data = data[
             (data['code_departement'].isin(department_codes))
         ]
-        title = f'Type Local Distribution for Region {region}'
+        title = f'Type Local Distribution for Region {region}, {region_code}'
 
     if filtered_data.empty:
         return {

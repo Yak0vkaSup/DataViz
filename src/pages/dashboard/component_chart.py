@@ -3,15 +3,12 @@ from dash import dcc, html, Input, Output, callback
 from config import DATA_DIR
 import os
 
-# Load the preprocessed data
 DATA_FILE = os.path.join(DATA_DIR, 'full_with_region.pkl')
 data = pd.read_pickle(DATA_FILE)
 
-# Layout for the chart with moving average slider
 def ChartComponent():
     return html.Div(
         children=[
-            html.H2('Price Movement Over Time with Moving Average'),
             dcc.Graph(id='price-movement-chart'),
             html.Div(
                 children=[
@@ -19,10 +16,10 @@ def ChartComponent():
                     dcc.Slider(
                         id='ma-slider',
                         min=7,
-                        max=30,
+                        max=60,
                         step=1,
-                        value=14,  # Default window size
-                        marks={i: str(i) for i in range(7, 31, 5)},
+                        value=14,
+                        marks={i: str(i) for i in range(7, 61, 5)},
                     )
                 ],
                 style={'marginTop': '20px'}
@@ -45,24 +42,31 @@ def update_chart(selected_location, ma_window):
 
     # Retrieve selected location filters
     region = selected_location.get('region')
+    department = selected_location.get('department')
+    commune = selected_location.get('commune')
+    local_type = selected_location.get('local_type')
+
     department_code = selected_location.get('department_code')
     commune_code = selected_location.get('commune_code')
+    region_code = selected_location.get('region_code')
 
     # Filter data dynamically
     filtered_data = data.copy()
     if commune_code:
         filtered_data = filtered_data[filtered_data['code_commune'] == commune_code]
-        title = f"Price Movement for Commune {commune_code}"
+        title = f"Price Movement for Commune {commune}, {commune_code}"
     elif department_code:
         filtered_data = filtered_data[filtered_data['code_departement'] == department_code]
-        title = f"Price Movement for Department {department_code}"
+        title = f"Price Movement for Department {department}, {department_code}"
     elif region:
         filtered_data = filtered_data[filtered_data['region'] == region]
-        title = f"Price Movement for Region {region}"
+        title = f"Price Movement for Region {region}, {region_code}"
     else:
         title = "Price Movement"
 
-    # Check for empty filtered data
+    if local_type:
+        filtered_data = filtered_data[filtered_data['type_local'] == local_type]
+
     if filtered_data.empty:
         return {
             'data': [],

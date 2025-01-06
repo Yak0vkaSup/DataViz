@@ -11,7 +11,6 @@ data = pd.read_pickle(DATA_FILE)
 def HistogrammeComponent():
     return html.Div(
         children=[
-            html.H2('Price per Square Meter Distribution'),
             dcc.Graph(id='price-histogram'),
         ],
         className='histogramme-component'
@@ -30,34 +29,42 @@ def update_histogram(selected_location):
             'layout': {'title': 'No data available. Please select a location.'}
         }
 
-    # Retrieve selected location filters
     region = selected_location.get('region')
+    department = selected_location.get('department')
+    commune = selected_location.get('commune')
+    local_type = selected_location.get('local_type')
+
     department_code = selected_location.get('department_code')
     commune_code = selected_location.get('commune_code')
+    region_code = selected_location.get('region_code')
 
     # Filter data dynamically
     filtered_data = data.copy()
     if commune_code:
         filtered_data = filtered_data[filtered_data['code_commune'] == commune_code]
-        title = f"Price Distribution for Commune {commune_code}"
+        title = f"Price Distribution for Commune {commune}, {commune_code}"
     elif department_code:
         filtered_data = filtered_data[filtered_data['code_departement'] == department_code]
-        title = f"Price Distribution for Department {department_code}"
+        title = f"Price Distribution for Department {department}, {department_code}"
     elif region:
         filtered_data = filtered_data[filtered_data['region'] == region]
-        title = f"Price Distribution for Region {region}"
+        title = f"Price Distribution for Region {region}, {region_code}"
     else:
         title = "Price Distribution"
+
+    # Apply local type filter
+    if local_type:
+        filtered_data = filtered_data[filtered_data['type_local'] == local_type]
 
     # Check for empty filtered data
     if filtered_data.empty:
         return {
             'data': [],
-            'layout': {'title': 'No data available for the selected location.'}
+            'layout': {'title': 'No data available for the selected location and local type.'}
         }
 
     # Create histogram bins (e.g., 0–1,000, 1,000–2,000, etc.)
-    bins = range(0, 15000, 500)  # From 0 to 20,000 in 1,000 increments
+    bins = range(0, 15000, 500)  # From 0 to 20,000 in 500 increments
     filtered_data['price_bin'] = pd.cut(filtered_data['price_per_m2'], bins=bins)
 
     # Count the number of properties in each bin
