@@ -3,7 +3,7 @@ import folium
 import numpy as np
 import os
 import json
-
+from test import calculate_geojson_center
 def load_grouped_data(pickle_filename):
     """
     Load the preprocessed DataFrame from a pickle file (grouped by commune, departement, or region).
@@ -33,10 +33,10 @@ def create_choropleth_map(df, geojson_file, level, geojson_key, map_filename=Non
     if 'commune' in df.columns:
         df = df.rename(columns={'commune': 'code'})
 
-    center_lat, center_lon = 46.603354, 1.888334  # Center of France
+    center_lat, center_lon = calculate_geojson_center(geojson_file)  # Center of France
 
     # Initialize the map
-    price_map = folium.Map(location=[center_lat, center_lon], zoom_start=6)
+    price_map = folium.Map(location=[center_lat, center_lon], zoom_start=9)
 
     # Add the average price per m² to the GeoJSON data
     geojson_data = add_price_to_geojson(df, geojson_file, geojson_key)

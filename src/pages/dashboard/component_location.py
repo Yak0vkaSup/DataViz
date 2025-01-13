@@ -1,8 +1,9 @@
 from dash import dcc, html, Input, Output, callback
-from config import load_region_dept_commune_map
+from src.config import load_region_dept_commune_map
 
 # Load the JSON map
 region_dept_commune_map = load_region_dept_commune_map()
+
 
 # Extract region options
 region_options = [{'label': region, 'value': region} for region in region_dept_commune_map.keys()]

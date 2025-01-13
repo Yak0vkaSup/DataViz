@@ -35,6 +35,7 @@ def update_map(selected_location):
     # Retrieve selected location details
     department_code = selected_location.get('department_code')
     commune_code = selected_location.get('commune_code')
+    region = selected_location.get('region')
 
     # Determine which file to load based on the selection
     if commune_code:
@@ -46,6 +47,11 @@ def update_map(selected_location):
         file_path = os.path.join(
             '/Users/AdrienBRUNET/PycharmProjects/PythonProject/DataViz/data/department_maps',
             f'price_per_m2_department_{department_code}.html'
+        )
+    elif region:
+        file_path = os.path.join(
+            '/Users/AdrienBRUNET/PycharmProjects/PythonProject/DataViz/data/regions_maps',
+            f'price_per_m2_{region.replace(" ", "_")}_choropleth_map.html'
         )
     else:
         # Default map for regions or no selection
