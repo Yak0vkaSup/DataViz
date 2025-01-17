@@ -1,9 +1,12 @@
 from dash import html
-from components import Header, Footer, Navbar
+
 from .component_chart import ChartComponent
 from .component_pie import PieComponent
 from .component_histogramme import HistogrammeComponent
 from .component_location import LocationComponent
+from .component_map import MapComponent
+from src.components import (Header, Navbar, Footer)
+
 
 def DashboardPage():
     return html.Div(
@@ -12,6 +15,10 @@ def DashboardPage():
             Navbar(),
             html.Main(
                 children=[
+                    html.Div(
+                        MapComponent(),
+                        style={'width': '80vw', 'margin': '0 auto'},
+                    ),
                     LocationComponent(),
                     html.Div(
                         PieComponent(),
