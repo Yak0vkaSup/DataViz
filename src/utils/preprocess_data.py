@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 import logging
-from src.config import DEPT_CODE_TO_REGION
+from src.utils.config import DEPT_CODE_TO_REGION
 import json
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
