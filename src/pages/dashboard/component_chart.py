@@ -1,6 +1,6 @@
 import pandas as pd
 from dash import dcc, html, Input, Output, callback
-from config import DATA_DIR
+from src.utils.config import DATA_DIR
 import os
 
 # Load the preprocessed data

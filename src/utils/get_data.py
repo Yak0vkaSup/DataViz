@@ -63,7 +63,7 @@ class DataDownloader:
         logging.info("Temporary files deleted.")
 
     def load_geojson(self, name, url):
-        data_path = os.path.join('data', f'{name}.geojson')
+        data_path = os.path.join('../../data', f'{name}.geojson')
         if os.path.exists(data_path):
             try:
                 with open(data_path, 'r', encoding='utf-8') as f:
@@ -78,7 +78,7 @@ class DataDownloader:
                 with urlopen(url) as response:
                     geojson = json.load(response)
                 # Save to local file
-                os.makedirs('data', exist_ok=True)
+                os.makedirs('../../data', exist_ok=True)
                 with open(data_path, 'w', encoding='utf-8') as f:
                     json.dump(geojson, f)
                 logging.info(f"Successfully downloaded and saved GeoJSON data to {data_path}")

@@ -26,7 +26,7 @@ def MapComponent():
 )
 def update_map(selected_location):
 
-    base_path = os.path.abspath('../data')
+    base_path = os.path.abspath('../data/cleaned')
     """
     Callback to update the displayed map based on selected location.
     """
@@ -38,7 +38,7 @@ def update_map(selected_location):
 
     # Determine which file to load based on the selection
     if department_code:
-        file_path = os.path.join(base_path,'department_maps',f'price_per_m2_department_{department_code}.html'
+        file_path = os.path.join(base_path,'departements_maps',f'price_per_m2_per_department_{department_code}_choropleth_map.html'
         )
     elif region:
         file_path = os.path.join(base_path,
