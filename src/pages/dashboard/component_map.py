@@ -30,9 +30,6 @@ def update_map(selected_location):
     """
     Callback to update the displayed map based on selected location.
     """
-    # Default behavior: No data available
-    if not selected_location:
-        return "<h4>No location selected. Please choose a department or commune.</h4>"
 
     # Retrieve selected location details
     department_code = selected_location.get('department_code')
