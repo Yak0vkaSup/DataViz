@@ -25,6 +25,8 @@ def MapComponent():
     Input('selected-location', 'data'),  # Trigger when the location changes
 )
 def update_map(selected_location):
+
+    base_path = os.path.abspath('../data')
     """
     Callback to update the displayed map based on selected location.
     """
@@ -38,31 +40,23 @@ def update_map(selected_location):
     region = selected_location.get('region')
 
     # Determine which file to load based on the selection
-    if commune_code:
-        file_path = os.path.join(
-            '/Users/AdrienBRUNET/PycharmProjects/PythonProject/DataViz/data/commune_maps',
-            f'price_per_m2_commune_{commune_code}.html'
-        )
-    elif department_code:
-        file_path = os.path.join(
-            '/Users/AdrienBRUNET/PycharmProjects/PythonProject/DataViz/data/department_maps',
-            f'price_per_m2_department_{department_code}.html'
+    if department_code:
+        file_path = os.path.join(base_path,'department_maps',f'price_per_m2_department_{department_code}.html'
         )
     elif region:
-        file_path = os.path.join(
-            '/Users/AdrienBRUNET/PycharmProjects/PythonProject/DataViz/data/regions_maps',
-            f'price_per_m2_{region.replace(" ", "_")}_choropleth_map.html'
+        file_path = os.path.join(base_path,
+                                 'regions_maps',
+                                 f'price_per_m2_{region.replace(" ", "_")}_choropleth_map.html'
         )
     else:
         # Default map for regions or no selection
-        file_path = os.path.join(
-            '/Users/AdrienBRUNET/PycharmProjects/PythonProject/DataViz',
-            'price_per_m2_region_map.html'
+        file_path = os.path.join(base_path,
+            'price_per_m2_region_log_choropleth_map.html'
         )
 
     # Check if the file exists
     if not os.path.exists(file_path):
-        return f"<h4>No map available for the selected location: {department_code or commune_code}</h4>"
+        return f"<h4>No map available for the selected location: {department_code or commune_code}, for filepath {file_path}</h4>"
 
     # Load the HTML content of the map file
     with open(file_path, 'r', encoding='utf-8') as file:
