@@ -27,12 +27,11 @@ def DashboardPage():
                         className='map-and-pie-container',
                     ),
                     html.Div(
-                        ChartComponent(),
-                        className='dashboard-section chart-section',
-                    ),
-                    html.Div(
-                        HistogrammeComponent(),
-                        className='dashboard-section histogram-section',
+                        children=[
+                            html.Div(ChartComponent(), className='chart-section'),
+                            html.Div(HistogrammeComponent(), className='histogram-section'),
+                        ],
+                        className='chart-and-histogram-container',
                     ),
                 ],
                 className='main-content',

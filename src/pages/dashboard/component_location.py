@@ -17,7 +17,6 @@ def LocationComponent():
             dcc.Dropdown(
                 id='region-dropdown',
                 options=region_options,
-                value=default_region,
                 placeholder='Select a Region',
             ),
             dcc.Dropdown(
