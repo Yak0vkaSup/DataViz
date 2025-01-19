@@ -10,7 +10,6 @@ region_options = [{'label': region, 'value': region} for region in region_dept_c
 
 # Layout for the dropdowns
 def LocationComponent():
-    default_region = region_options[0]['value']  # Use the first region as default
     return html.Div(
         children=[
             html.H2('Select Region, Department, and Commune'),

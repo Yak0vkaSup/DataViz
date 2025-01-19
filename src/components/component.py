@@ -1,5 +1,4 @@
 from dash import html
-from dash import dcc
 
 def Component1():
     return html.Div(

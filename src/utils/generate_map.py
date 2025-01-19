@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
+import logging
 import folium
 from config import load_region_dept_commune_map
 import json
@@ -95,18 +96,17 @@ class ChoroplethMapGenerator:
 
     def display_scale_list(self, scale_name):
         region_departement = self.scale_dept_commune_map.get(scale_name)
-        print('scaleName : ', scale_name)
         scale = "departments"
         if not region_departement:
-            print(f"Region '{scale_name}' not found in the data.")
+            logging.info("Region %s not found in the data.", scale_name)
             return []
 
         min_scale = region_departement.get(scale, {})
         if not min_scale:
-            print(f"No departments found in the region '{scale_name}'.")
+            logging.info("No departments found in the region %s.", scale_name)
             return []
 
-        print(f"Departments in {scale_name}:")
+        logging.info("Departments in %s:", scale_name)
         return [dept_info.get('code', 'N/A') for dept_info in min_scale.values()]
 
     def create_choropleth_map(self, df, geojson_data, geojson_key, level, map_filename=None):
@@ -120,11 +120,9 @@ class ChoroplethMapGenerator:
             if(self.LEVEL_MAP[self.level]=="region"):
                 df = df.rename(columns={self.LEVEL_MAP[self.level]: 'nom'})
                 code = 'nom'
-                print('code : ',code)
-            else : df = df.rename(columns={self.LEVEL_MAP[self.level]: 'code'})
+            else:
+                df = df.rename(columns={self.LEVEL_MAP[self.level]: 'code'})
         df['log_price_per_m2'] = np.log1p(df['average_price_per_m2'])
-        print("123 : ", df.head())
-        print('code : ', code)
         center_lat, center_lon = self.calculate_geojson_center(geojson_data)
         geojson_data = self.add_price_to_geojson(df, geojson_data, geojson_key)
         thresholds = [
@@ -166,7 +164,7 @@ class ChoroplethMapGenerator:
         ).add_to(price_map)
         map_filename = map_filename or 'price_per_m2_choropleth_map.html'
         price_map.save(map_filename)
-        print(f"Map has been saved as {map_filename}")
+        logging.info("Map has been saved as %s", map_filename)
 
     def create_choropleth_map_per_region_department(self, df, geojson_data, geojson_key, level):
         if (level == "pays"):
@@ -174,7 +172,7 @@ class ChoroplethMapGenerator:
             geojson_filtered = geojson_data
             geojson_key = 'nom'
             map_filename = os.path.join(self.output_dir,
-                                        f'price_per_m2_region_choropleth_map.html')
+                                        'price_per_m2_region_choropleth_map.html')
             self.create_choropleth_map(df, geojson_filtered, geojson_key, level,
                                        map_filename)
         else :
@@ -193,7 +191,6 @@ class ChoroplethMapGenerator:
                             if feature['properties'][geojson_key] in region_departments
                         ]
                     }
-                    print(df_region_departments.head())
                     if not df_region_departments.empty and geojson_filtered['features']:
                         map_filename = os.path.join(self.output_dir,
                                                                              f'price_per_m2_{scale.replace(" ", "_")}_choropleth_map.html')
@@ -215,7 +212,7 @@ class ChoroplethMapGenerator:
                                                         f'price_per_m2_per_department_{department_code.replace(" ", "_")}_choropleth_map.html')
                             self.create_choropleth_map(df_region_departments, geojson_filtered, geojson_key, level, map_filename)
                         else:
-                            print(f"No data for department {department_code}, skipping...")
+                            logging.info("No data for department %s, skipping...",  department_code)
 
 
 
