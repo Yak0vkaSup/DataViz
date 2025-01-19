@@ -1,5 +1,6 @@
 import os
 from dash import html, dcc, Input, Output, callback
+from src.utils.config import DATA_DIR
 
 def MapComponent():
     """
@@ -26,7 +27,7 @@ def MapComponent():
 )
 def update_map(selected_location):
 
-    base_path = os.path.abspath('../data/cleaned')
+    base_path = os.path.abspath(DATA_DIR)
     """
     Callback to update the displayed map based on selected location.
     """

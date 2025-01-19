@@ -68,9 +68,10 @@ class DataHandler:
     Handles data loading and saving operations.
     """
 
-    def __init__(self, data_dir='data'):
-        self.data_dir = data_dir
-        os.makedirs(self.data_dir, exist_ok=True)
+    def __init__(self, input_dir='data', output_dir='data/cleaned'):
+        self.input_dir = input_dir
+        self.output_dir = output_dir
+        os.makedirs(self.output_dir, exist_ok=True)
 
     def load_data(self, filename):
         """
@@ -82,7 +83,7 @@ class DataHandler:
         Returns:
             pd.DataFrame: The loaded DataFrame.
         """
-        filepath = os.path.join(self.data_dir, filename)
+        filepath = os.path.join(self.input_dir, filename)
         df = pd.DataFrame
         if not os.path.exists(filepath):
             logging.error(f"Data file '{filepath}' does not exist.")
@@ -103,7 +104,7 @@ class DataHandler:
             df (pd.DataFrame): The DataFrame to save.
             filename (str): The name of the pickle file to save to.
         """
-        filepath = os.path.join(self.data_dir, filename)
+        filepath = os.path.join(self.output_dir, filename)
         logging.info(f"Saving data to '{filepath}'...")
         try:
             df.to_pickle(filepath)
@@ -230,12 +231,12 @@ def build_region_dept_commune_map(communes_dict, departments_dict, regions_dict)
 
     return region_dept_commune_map
 
-def create_region_dept_commune_map():
-    with open('data/regions.geojson', 'r', encoding='utf-8') as file:
+def create_region_dept_commune_map(input_dir='data/cleaned', output_dir='data/cleaned'):
+    with open(input_dir+'/regions.geojson', 'r', encoding='utf-8') as file:
         regions_geojson = json.load(file)
-    with open('data/departments.geojson', 'r', encoding='utf-8') as file:
+    with open(input_dir+'/departments.geojson', 'r', encoding='utf-8') as file:
         departments_geojson = json.load(file)
-    with open('data/communes.geojson', 'r', encoding='utf-8') as file:
+    with open(input_dir+'/communes.geojson', 'r', encoding='utf-8') as file:
         communes_geojson = json.load(file)
 
     regions_dict = build_regions_dict(regions_geojson)
@@ -243,14 +244,17 @@ def create_region_dept_commune_map():
     communes_dict = build_communes_dict(communes_geojson)
     region_dept_commune_map = build_region_dept_commune_map(communes_dict, departments_dict, regions_dict)
 
-    output_path = 'data/region_dept_commune_map.json'
+    output_path = output_dir+'/region_dept_commune_map.json'
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(region_dept_commune_map, f, ensure_ascii=False, indent=2)
     logging.info(f"Saved region-department-commune map to {output_path}")
 
 
 def main():
-    data_handler = DataHandler(data_dir='data')
+    input_dir = 'data/cleaned'
+    output_dir = 'data/cleaned'
+
+    data_handler = DataHandler(input_dir=input_dir, output_dir=output_dir)
 
     data = data_handler.load_data('full.pkl')
 
@@ -278,7 +282,7 @@ def main():
     data_handler.save_data(df_by_region, 'prix_m2_par_region.pkl')
     data_handler.save_data(data, 'full_with_region.pkl')
 
-    create_region_dept_commune_map()
+    create_region_dept_commune_map(input_dir=input_dir, output_dir=output_dir)
 
 if __name__ == '__main__':
     main()

@@ -9,7 +9,7 @@ branca=0.8.1=pyhd8ed1ab_0
 brotli-python=1.0.9=py312h313beb8_9
 bzip2=1.0.8=h80987f9_6
 ca-certificates=2024.12.31=hca03da5_0
-certifi=2024.12.14=pyhd8ed1ab_0
+certifi=2024.12.14=py312hca03da5_0
 charset-normalizer=3.3.2=pyhd3eb1b0_0
 click=8.1.7=py312hca03da5_0
 dash=2.14.2=py312hca03da5_0
@@ -51,6 +51,7 @@ six=1.16.0=pyhd3eb1b0_1
 sqlite=3.45.3=h80987f9_0
 tenacity=9.0.0=py312hca03da5_0
 tk=8.6.14=h6ba3021_0
+tqdm=4.66.5=py312h989b03a_0
 typing_extensions=4.12.2=py312hca03da5_0
 tzdata=2024b=h04d1e81_0
 urllib3=2.3.0=py312hca03da5_0
