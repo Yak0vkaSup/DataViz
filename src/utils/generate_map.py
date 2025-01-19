@@ -97,36 +97,44 @@ class ChoroplethMapGenerator:
         Returns:
         - tuple: (latitude, longitude) of the centroid.
         """
-        latitudes = []
-        longitudes = []
+        latitudes, longitudes = [], []
         for feature in geojson_data['features']:
             geom = feature['geometry']
-            geom_type = geom['type']
             coords = geom['coordinates']
 
-            if geom_type == 'Polygon':
-                for ring in coords:
-                    for coord in ring:
-                        lon, lat = coord
-                        latitudes.append(lat)
-                        longitudes.append(lon)
-            elif geom_type == 'MultiPolygon':
-                for polygon in coords:
-                    for ring in polygon:
-                        for coord in ring:
-                            lon, lat = coord
-                            latitudes.append(lat)
-                            longitudes.append(lon)
-            else:
-                continue
+            if geom['type'] == 'Polygon':
+                latitudes, longitudes = ChoroplethMapGenerator._extract_polygon_coords(coords, latitudes, longitudes)
+            elif geom['type'] == 'MultiPolygon':
+                latitudes, longitudes = ChoroplethMapGenerator._extract_multipolygon_coords(coords, latitudes,
+                                                                                            longitudes)
 
         if latitudes and longitudes:
-            center_lat = np.mean(latitudes)
-            center_lon = np.mean(longitudes)
-            return center_lat, center_lon
+            return np.mean(latitudes), np.mean(longitudes)
         else:
-            # Default center if no coordinates are found
-            return 46.603354, 1.888334  # Center of France
+            return 46.603354, 1.888334  # Default to the center of France
+
+    @staticmethod
+    def _extract_polygon_coords(coords, latitudes, longitudes):
+        """
+        Extract coordinates from a Polygon geometry.
+        """
+        for ring in coords:
+            for lon, lat in ring:
+                latitudes.append(lat)
+                longitudes.append(lon)
+        return latitudes, longitudes
+
+    @staticmethod
+    def _extract_multipolygon_coords(coords, latitudes, longitudes):
+        """
+        Extract coordinates from a MultiPolygon geometry.
+        """
+        for polygon in coords:
+            for ring in polygon:
+                for lon, lat in ring:
+                    latitudes.append(lat)
+                    longitudes.append(lon)
+        return latitudes, longitudes
 
     def display_scale_list(self, scale_name):
         """
@@ -218,81 +226,83 @@ class ChoroplethMapGenerator:
     def create_choropleth_map_per_region_department(self, df, geojson_data, geojson_key, level):
         """
         Generate and save choropleth maps for specified regions or departments.
-
-        This function generates choropleth maps for either all regions,
-        individual regions, or departments based on the specified level.
-        It filters data and GeoJSON features for the required geographic scale
-        and creates maps for visualizing the average price per square meter.
-
-        Args:
-            df (pd.DataFrame): A DataFrame containing real estate data, including
-                average prices and geographic information.
-            geojson_data (dict): GeoJSON data representing geographic boundaries.
-            geojson_key (str): The key used to match data in the DataFrame with
-                properties in the GeoJSON features.
-            level (str): The geographic level for map generation. Options include:
-                - "pays" (country level)
-                - "region" (regional level)
-                - "departement" (department level)
-        Outputs:
-            Saves the generated choropleth maps as HTML files in the output directory.
         """
         if level == "pays":
-            df_region_departments = df[df['region'].isin(self.scale_list)]
-            geojson_filtered = geojson_data
-            geojson_key = 'nom'
-            map_filename = os.path.join(self.output_dir,
-                                        'price_per_m2_region_choropleth_map.html')
-            self.create_choropleth_map(df, geojson_filtered, geojson_key, level,
-                                       map_filename)
-        else:
-            for scale in self.scale_list:
-                region_departments = self.display_scale_list(scale)
-                if not region_departments:
-                    continue
+            self._create_country_map(df, geojson_data, geojson_key, level)
+        elif level == "region":
+            self._create_region_maps(df, geojson_data, geojson_key)
+        elif level == "departement":
+            self._create_department_maps(df, geojson_data, geojson_key)
 
-                if level == "region":
+    def _create_country_map(self, df, geojson_data, geojson_key, level):
+        """
+        Create a country-level map.
+        """
+        df_region_departments = df[df['region'].isin(self.scale_list)]
+        geojson_filtered = geojson_data
+        geojson_key = 'nom'
+        map_filename = os.path.join(self.output_dir, 'price_per_m2_region_choropleth_map.html')
+        self.create_choropleth_map(df_region_departments, geojson_filtered, geojson_key, level, map_filename)
 
-                    df_region_departments = df[df['departement'].isin(region_departments)]
-                    geojson_filtered = {
-                        'type': 'FeatureCollection',
-                        'features': [
-                            feature for feature in geojson_data['features']
-                            if feature['properties'][geojson_key] in region_departments
-                        ]
-                    }
-                    if not df_region_departments.empty and geojson_filtered['features']:
-                        map_filename = os.path.join(
-                            self.output_dir,
-                            f'price_per_m2_{scale.replace(" ", "_")}_choropleth_map.html')
-                        self.create_choropleth_map(df_region_departments,
-                                                   geojson_filtered,
-                                                   geojson_key, level,
-                                                   map_filename)
+    def _create_region_maps(self, df, geojson_data, geojson_key):
+        """
+        Create maps for each region.
+        """
+        for scale in self.scale_list:
+            region_departments = self.display_scale_list(scale)
+            if not region_departments:
+                continue
 
-                elif level == "departement":
-                    for department_code in region_departments:
-                        df_region_departments = df[df['commune'].str.startswith(department_code)]
-                        geojson_filtered = {
-                            'type': 'FeatureCollection',
-                            'features': [
-                                feature for feature in geojson_data['features']
-                                if feature['properties'][geojson_key].startswith(department_code)
-                            ]
-                        }
-                        if not df_region_departments.empty and geojson_filtered['features']:
-                            map_filename = os.path.join(
-                                self.output_dir,
-                                f'price_per_m2_per_department_'
-                                f'{department_code.replace(" ", "_")}'
-                                f'_choropleth_map.html')
-                            self.create_choropleth_map(df_region_departments,
-                                                       geojson_filtered,
-                                                       geojson_key,
-                                                       level,
-                                                       map_filename)
-                        else:
-                            logging.info("No data for department %s, skipping...", department_code)
+            df_region_departments = df[df['departement'].isin(region_departments)]
+            geojson_filtered = self._filter_geojson_by_departments(geojson_data, geojson_key, region_departments)
+
+            if not df_region_departments.empty and geojson_filtered['features']:
+                map_filename = os.path.join(self.output_dir,
+                                            f'price_per_m2_{scale.replace(" ", "_")}_choropleth_map.html')
+                self.create_choropleth_map(df_region_departments, geojson_filtered, geojson_key, "region", map_filename)
+
+    def _create_department_maps(self, df, geojson_data, geojson_key):
+        """
+        Create maps for each department.
+        """
+        for scale in self.scale_list:
+            region_departments = self.display_scale_list(scale)
+            if not region_departments:
+                continue
+
+            for department_code in region_departments:
+                #We need to filter the geojson if the commune start with the 'code' and strictly equal
+                df_region_departments = df[df['commune'].str.startswith(department_code)]
+                geojson_filtered = {
+                    'type': 'FeatureCollection',
+                    'features': [
+                        feature for feature in geojson_data['features']
+                        if feature['properties'][geojson_key].startswith(department_code)
+                    ]
+                }
+                if not df_region_departments.empty and geojson_filtered['features']:
+                    map_filename = os.path.join(
+                        self.output_dir,
+                        f'price_per_m2_per_department_'
+                        f'{department_code.replace(" ", "_")}'
+                        f'_choropleth_map.html')
+                    self.create_choropleth_map(df_region_departments,
+                                               geojson_filtered,
+                                               geojson_key,
+                                               "departement",
+                                               map_filename)
+
+    def _filter_geojson_by_departments(self, geojson_data, geojson_key, department_codes):
+        """
+        Filter GeoJSON data to include only specified department codes.
+        """
+        return {
+            'type': 'FeatureCollection',
+            'features': [
+                feature for feature in geojson_data['features']
+                if feature['properties'][geojson_key] in department_codes
+            ]
+        }
 
     def generate_maps(self):
         """
