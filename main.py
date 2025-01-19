@@ -33,4 +33,4 @@ if __name__ == "__main__":
 
     print("Launching app...")
     app = create_app()
-    app.run_server(debug=True)
+    app.run_server(debug=False)
