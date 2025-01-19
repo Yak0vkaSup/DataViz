@@ -1,27 +1,46 @@
+"""
+This module provides functionality to generate choropleth maps for real estate
+data, showing the average price per square meter at various geographic levels.
+"""
+
 import os
+import logging
+import json
 import numpy as np
 import pandas as pd
-import logging
 import folium
+
 from config import load_region_dept_commune_map
-import json
 
 base_path = os.path.abspath('data')
 
+
 class ChoroplethMapGenerator:
+    """
+    A class for generating choropleth maps based on geographic and real estate data.
+    """
 
     LEVEL_MAP = {
-        "pays" : "region",
+        "pays": "region",
         "region": "departement",
         "departement": "commune"
     }
     ZOOM_START_MAP = {
-        "pays": 6,         # Suitable zoom level for a country
-        "region": 7,       # Suitable zoom level for a region
-        "departement": 9 # Suitable zoom level for a department
+        "pays": 6,  # Suitable zoom level for a country
+        "region": 7,  # Suitable zoom level for a region
+        "departement": 9  # Suitable zoom level for a department
     }
+
     def __init__(self, pickle_file, geojson_file, level):
-        self.pickle_file =pickle_file
+        """
+         Initialize the ChoroplethMapGenerator with data and configurations.
+
+         Args:
+             pickle_file (str): Path to the pickle file containing grouped data.
+             geojson_file (str): Path to the GeoJSON file for geographic data.
+             level (str): Geographic level for the map (e.g., "region", "departement").
+         """
+        self.pickle_file = pickle_file
         self.geojson_file = geojson_file
         self.scale_dept_commune_map = load_region_dept_commune_map()
         self.scale_list = self.scale_dept_commune_map.keys()
@@ -32,14 +51,28 @@ class ChoroplethMapGenerator:
     @staticmethod
     def load_grouped_data(pickle_filename):
         """
-        Load the preprocessed DataFrame from a pickle file (grouped by commune, departement, or region).
+        Load the preprocessed DataFrame from a pickle file.
+
+        Args:
+            pickle_filename (str): Path to the pickle file.
+
+        Returns:
+            pd.DataFrame: The loaded DataFrame.
         """
         return pd.read_pickle(pickle_filename)
 
     @staticmethod
     def add_price_to_geojson(df, geojson_data, geojson_key):
         """
-        Add the average price per m² from the DataFrame to the GeoJSON file.
+        Add the average price per square meter from the DataFrame to the GeoJSON data.
+
+        Args:
+            df (pd.DataFrame): DataFrame containing price data.
+            geojson_data (dict): GeoJSON data to modify.
+            geojson_key (str): Key to match between the DataFrame and GeoJSON.
+
+        Returns:
+            dict: Updated GeoJSON data with price information.
         """
 
         # Convert the DataFrame to a dictionary for easy lookup
@@ -52,6 +85,7 @@ class ChoroplethMapGenerator:
             feature['properties']['average_price_per_m2'] = df_dict.get(code, None)
 
         return geojson_data
+
     @staticmethod
     def calculate_geojson_center(geojson_data):
         """
@@ -95,6 +129,15 @@ class ChoroplethMapGenerator:
             return 46.603354, 1.888334  # Center of France
 
     def display_scale_list(self, scale_name):
+        """
+        Display the list of scales (e.g., departments) for a given region.
+
+        Args:
+            scale_name (str): Name of the region.
+
+        Returns:
+            list: List of department codes in the region.
+        """
         region_departement = self.scale_dept_commune_map.get(scale_name)
         scale = "departments"
         if not region_departement:
@@ -113,11 +156,17 @@ class ChoroplethMapGenerator:
         """
         Create a choropleth map showing the average price per square meter by the specified level,
         using a logarithmic scale to handle wide ranges of values.
+        Args:
+            df (pd.DataFrame): DataFrame containing price data.
+            geojson_data (dict): GeoJSON data for the map.
+            geojson_key (str): Key to match between the DataFrame and GeoJSON.
+            level (str): Geographic level for the map.
+            map_filename (str, optional): Output filename for the map. Defaults to None.
         """
         code = 'code'
         zoom_start = self.ZOOM_START_MAP.get(level, 8)
         if self.LEVEL_MAP[self.level] in df.columns:
-            if(self.LEVEL_MAP[self.level]=="region"):
+            if self.LEVEL_MAP[self.level] == "region":
                 df = df.rename(columns={self.LEVEL_MAP[self.level]: 'nom'})
                 code = 'nom'
             else:
@@ -155,7 +204,7 @@ class ChoroplethMapGenerator:
             },
             tooltip=folium.GeoJsonTooltip(
                 fields=[code, 'average_price_per_m2'],
-                aliases=[self.LEVEL_MAP[self.level]+' :', 'price per m²:'],
+                aliases=[self.LEVEL_MAP[self.level] + ' :', 'price per m²:'],
                 localize=True,
                 sticky=False,
                 labels=True,
@@ -167,7 +216,28 @@ class ChoroplethMapGenerator:
         logging.info("Map has been saved as %s", map_filename)
 
     def create_choropleth_map_per_region_department(self, df, geojson_data, geojson_key, level):
-        if (level == "pays"):
+        """
+        Generate and save choropleth maps for specified regions or departments.
+
+        This function generates choropleth maps for either all regions,
+        individual regions, or departments based on the specified level.
+        It filters data and GeoJSON features for the required geographic scale
+        and creates maps for visualizing the average price per square meter.
+
+        Args:
+            df (pd.DataFrame): A DataFrame containing real estate data, including
+                average prices and geographic information.
+            geojson_data (dict): GeoJSON data representing geographic boundaries.
+            geojson_key (str): The key used to match data in the DataFrame with
+                properties in the GeoJSON features.
+            level (str): The geographic level for map generation. Options include:
+                - "pays" (country level)
+                - "region" (regional level)
+                - "departement" (department level)
+        Outputs:
+            Saves the generated choropleth maps as HTML files in the output directory.
+        """
+        if level == "pays":
             df_region_departments = df[df['region'].isin(self.scale_list)]
             geojson_filtered = geojson_data
             geojson_key = 'nom'
@@ -175,13 +245,13 @@ class ChoroplethMapGenerator:
                                         'price_per_m2_region_choropleth_map.html')
             self.create_choropleth_map(df, geojson_filtered, geojson_key, level,
                                        map_filename)
-        else :
+        else:
             for scale in self.scale_list:
                 region_departments = self.display_scale_list(scale)
                 if not region_departments:
                     continue
 
-                if (level == "region"):
+                if level == "region":
 
                     df_region_departments = df[df['departement'].isin(region_departments)]
                     geojson_filtered = {
@@ -192,12 +262,15 @@ class ChoroplethMapGenerator:
                         ]
                     }
                     if not df_region_departments.empty and geojson_filtered['features']:
-                        map_filename = os.path.join(self.output_dir,
-                                                                             f'price_per_m2_{scale.replace(" ", "_")}_choropleth_map.html')
-                        self.create_choropleth_map(df_region_departments, geojson_filtered, geojson_key, level,
+                        map_filename = os.path.join(
+                            self.output_dir,
+                            f'price_per_m2_{scale.replace(" ", "_")}_choropleth_map.html')
+                        self.create_choropleth_map(df_region_departments,
+                                                   geojson_filtered,
+                                                   geojson_key, level,
                                                    map_filename)
 
-                elif (level == "departement"):
+                elif level == "departement":
                     for department_code in region_departments:
                         df_region_departments = df[df['commune'].str.startswith(department_code)]
                         geojson_filtered = {
@@ -208,20 +281,28 @@ class ChoroplethMapGenerator:
                             ]
                         }
                         if not df_region_departments.empty and geojson_filtered['features']:
-                            map_filename = os.path.join(self.output_dir,
-                                                        f'price_per_m2_per_department_{department_code.replace(" ", "_")}_choropleth_map.html')
-                            self.create_choropleth_map(df_region_departments, geojson_filtered, geojson_key, level, map_filename)
+                            map_filename = os.path.join(
+                                self.output_dir,
+                                f'price_per_m2_per_department_'
+                                f'{department_code.replace(" ", "_")}'
+                                f'_choropleth_map.html')
+                            self.create_choropleth_map(df_region_departments,
+                                                       geojson_filtered,
+                                                       geojson_key,
+                                                       level,
+                                                       map_filename)
                         else:
-                            logging.info("No data for department %s, skipping...",  department_code)
-
-
-
-
+                            logging.info("No data for department %s, skipping...", department_code)
 
     def generate_maps(self):
+        """
+        Generate choropleth maps based on the data and configuration.
+        """
         df_grouped = self.load_grouped_data(self.pickle_file)
         level = self.level
-        with open(self.geojson_file, 'r', encoding='utf-8')as f:
+        with open(self.geojson_file, 'r', encoding='utf-8') as f:
             geojson_data = json.load(f)
-        self.create_choropleth_map_per_region_department(df_grouped,geojson_data,geojson_key='code', level=level)
-
+        self.create_choropleth_map_per_region_department(df_grouped,
+                                                         geojson_data,
+                                                         geojson_key='code',
+                                                         level=level)

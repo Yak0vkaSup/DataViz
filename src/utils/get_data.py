@@ -1,18 +1,39 @@
-import requests
+"""
+This module provides functionality to download, process, and manage real estate
+data from specified URLs, including GeoJSON files for geographic boundaries.
+"""
+
+import os
 import gzip
 import shutil
-import os
-import pandas as pd
 import logging
-from tqdm import tqdm
 import json
 from urllib.request import urlopen
+import requests
+import pandas as pd
+from tqdm import tqdm
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 class DataDownloader:
+    """
+    A class for downloading, unzipping, processing, and saving real estate data.
+
+    Attributes:
+        url (str): URL of the dataset to download.
+        download_folder (str): Folder to save downloaded files.
+        filename (str): Name of the downloaded file.
+    """
     def __init__(self, url, download_folder='data/cleaned', filename='full.csv.gz'):
+        """
+        Initialize the DataDownloader with the URL and paths for files.
+
+        Args:
+            url (str): URL to download the data from.
+            download_folder (str): Directory to save downloaded files.
+            filename (str): Name of the file to be downloaded.
+        """
         self.url = url
         self.filename = filename
         self.unzipped_filename = filename.replace('.gz', '')
@@ -24,7 +45,9 @@ class DataDownloader:
             os.makedirs(download_folder)
 
     def download_file(self):
-        # Download with tqdm progress bar
+        """
+        Download the file from the URL with a progress bar (tqdm).
+        """
         response = requests.get(self.url, stream=True)
         total_size = int(response.headers.get('content-length', 0))
 
@@ -40,22 +63,36 @@ class DataDownloader:
                 bar.update(len(data))
 
     def unzip_file(self):
-        # Unzip the gz file
+        """
+        Unzip the downloaded .gz file.
+        """
         with gzip.open(self.filename, 'rb') as f_in:
             with open(self.unzipped_filename, 'wb') as f_out:
                 shutil.copyfileobj(f_in, f_out)
 
     def load_csv_to_dataframe(self):
-        # Load the unzipped CSV file into a pandas DataFrame with low_memory=False to avoid dtype warnings
+        """
+        Load the unzipped CSV file into a pandas DataFrame.
+
+        Returns:
+            pd.DataFrame: Loaded DataFrame.
+        """
         return pd.read_csv(self.unzipped_filename, low_memory=False)
 
     def save_dataframe_as_pickle(self, df):
-        # Save DataFrame as a pickle file in the specified folder
+        """
+        Save a pandas DataFrame as a pickle file.
+
+        Args:
+            df (pd.DataFrame): DataFrame to save.
+        """
         df.to_pickle(self.pickle_filename)
-        logging.info(f"DataFrame saved as {self.pickle_filename}")
+        logging.info("DataFrame saved as %s", self.pickle_filename)
 
     def clean_up(self):
-        # Remove the downloaded and unzipped files
+        """
+        Remove the downloaded and unzipped files.
+        """
         if os.path.exists(self.filename):
             os.remove(self.filename)
         if os.path.exists(self.unzipped_filename):
@@ -63,15 +100,25 @@ class DataDownloader:
         logging.info("Temporary files deleted.")
 
     def load_geojson(self, name, url):
+        """
+        Load GeoJSON data from a file or download it if not available locally.
+
+        Args:
+            name (str): Name of the GeoJSON file (used for local saving).
+            geojson_url (str): URL to download the GeoJSON file.
+
+        Returns:
+            dict: Loaded GeoJSON data.
+        """
         data_path = os.path.join(self.download_folder, f'{name}.geojson')
         if os.path.exists(data_path):
             try:
                 with open(data_path, 'r', encoding='utf-8') as f:
                     geojson = json.load(f)
-                logging.info(f"Successfully loaded GeoJSON data from {data_path}")
+                logging.info("Successfully loaded GeoJSON data from %s", data_path)
                 return geojson
             except Exception as e:
-                logging.error(f"Failed to load GeoJSON data from {data_path}: {e}")
+                logging.error("Failed to load GeoJSON data from %s: %s", data_path, e)
                 return None
         else:
             try:
@@ -81,14 +128,16 @@ class DataDownloader:
                 os.makedirs(self.download_folder, exist_ok=True)
                 with open(data_path, 'w', encoding='utf-8') as f:
                     json.dump(geojson, f)
-                logging.info(f"Successfully downloaded and saved GeoJSON data to {data_path}")
+                logging.info("Successfully downloaded and saved GeoJSON data to %s", data_path)
                 return geojson
             except Exception as e:
-                logging.error(f"Failed to download GeoJSON data from {url}: {e}")
+                logging.error("Failed to download GeoJSON data from %s: %s", url, e)
                 return None
 
     def run(self):
-        # Execute the whole process
+        """
+        Execute the full data download, processing, and cleanup pipeline.
+        """
         logging.info("Starting the download process...")
         self.download_file()
         logging.info("Download complete. Unzipping the file...")
@@ -104,13 +153,13 @@ class DataDownloader:
         logging.info("Process completed successfully!")
 
 if __name__ == '__main__':
-    url = 'https://files.data.gouv.fr/geo-dvf/latest/csv/2023/full.csv.gz'
-    regions_geojson_url = 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions.geojson'
-    departments_geojson_url = 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/departements.geojson'
-    communes_geojson_url = 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/communes.geojson'
+    URL = 'https://files.data.gouv.fr/geo-dvf/latest/csv/2023/full.csv.gz'
+    REGIONS_GEOJSON_URL = 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions.geojson'
+    DEPARTMENTS_GEOJSON_URL = 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/departements.geojson'
+    COMMUNES_GEOJSON_URL = 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/communes.geojson'
 
-    downloader = DataDownloader(url)
+    downloader = DataDownloader(URL)
     downloader.run()
-    regions_geojson = downloader.load_geojson('regions', regions_geojson_url)
-    departments_geojson = downloader.load_geojson('departments', departments_geojson_url)
-    communes_geojson = downloader.load_geojson('communes', communes_geojson_url)
+    regions_geojson = downloader.load_geojson('regions', REGIONS_GEOJSON_URL)
+    departments_geojson = downloader.load_geojson('departments', DEPARTMENTS_GEOJSON_URL)
+    communes_geojson = downloader.load_geojson('communes', COMMUNES_GEOJSON_URL)

@@ -1,4 +1,5 @@
 import os
+import logging
 from src.utils.generate_map import ChoroplethMapGenerator
 from src.utils.preprocess_data import main as preprocess_main
 from src.utils.get_data import DataDownloader
@@ -47,17 +48,20 @@ def main():
         "pays"
     )
 
-    print("Data preparation completed.")
+    logging.info("Data preparation completed.")
 
 
 if __name__ == "__main__":
 
     if not os.path.exists(os.path.join(base_path, 'cleaned', 'full_with_region.pkl')):
-        print("Data not found. Running data preparation...")
+        logging.info("Data not found. Running data preparation...")
         main()
         from src.app import create_app
+        logging.info("Launching app...")
+        app = create_app()
+        app.run_server(debug=False)
     else :
         from src.app import create_app
-        print("Launching app...")
+        logging.info("Launching app...")
         app = create_app()
         app.run_server(debug=False)
