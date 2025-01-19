@@ -12,3 +12,4 @@ if __name__ == "__main__":
 
     make_map(os.path.join(base_path, 'prix_m2_par_departement.pkl'),os.path.join(base_path, 'departments.geojson'),"region")
     make_map(os.path.join(base_path, 'prix_m2_par_commune.pkl'),os.path.join(base_path, 'communes.geojson'),"departement")
+    make_map(os.path.join(base_path, 'prix_m2_par_region.pkl'),os.path.join(base_path, 'regions.geojson'),"pays")

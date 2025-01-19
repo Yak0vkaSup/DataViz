@@ -48,7 +48,8 @@ def update_map(selected_location):
     else:
         # Default map for regions or no selection
         file_path = os.path.join(base_path,
-            'price_per_m2_region_log_choropleth_map.html'
+                                 'payss_maps',
+            'price_per_m2_region_choropleth_map.html'
         )
 
     # Check if the file exists
