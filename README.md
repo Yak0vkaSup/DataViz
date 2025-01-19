@@ -59,20 +59,20 @@ To contribute or modify the project:
 
 The dashboard provides an interactive visualization of real estate data in France, categorized by region, department, and communes, highlighting key metrics such as average price per square meter and geographic distributions. This report analyzes the main sections of the dashboard based on the visualizations provided.
 
-2. Section Analysis (Example with the Île-de-France Region Selected)
+2. Section Analysis (Example with the Provence-Alpes-Côte d'Azure Region Selected)
 
 - Interactive Choropleth Map 
   - The map highlights a notable variation in prices within the region. 
-  - Central areas (like Paris) display significantly higher prices (data in red), while peripheral areas are less expensive (data in yellow or light orange).
+  - East area, the Alpes Maritimes display significantly higher prices (data in red), while the land areas are less expensive (data in yellow or light orange).
 - Pie Chart of Property Types
-  - Displays the distribution of real estate types (apartments, houses, dependencies, etc.) in the Île-de-France region.
-  - Apartments represent a significant share of transactions (34.4%), followed by houses (31.3%). Commercial and industrial properties occupy a smaller share (6.3%).
+  - Displays the distribution of real estate types (apartments, houses, dependencies, etc.) in the Provence-Alpes-Côte d'Azure region.
+  - Houses represent a significant share of transactions (32,2%), followed by dependancies (32.2%) and appartment(28.9%). Commercial and industrial properties occupy a smaller share (6.15%).
 - Average Price Evolution Over Time
   - Analyzes the evolution of average prices per square meter over time and identifies trends using a moving average.
-  - Prices show significant short-term variations, with notable spikes on certain dates. The 14-day moving average smooths fluctuations and reveals general trends. Overall, prices appear stable in recent periods, despite occasional anomalies.
+  - Prices show significant short-term variations, with notable spikes on certain dates. The 14-day moving average smooths fluctuations and reveals general trends. 
 - Price Distribution per Square Meter
-  - Visualizes the distribution of prices per square meter in the Île-de-France region.
-  - The distribution is asymmetric, with a mode around €3,000/m². A long tail to the right indicates high-end real estate with elevated prices. The majority of properties fall within an accessible price range (below €7,000/m²).
+  - Visualizes the distribution of prices per square meter in the  Provence-Alpes-Côte d'Azure region.
+  - The distribution is asymmetric, with a mode around €3,000/m². A long tail to the right indicates high-end real estate with elevated prices. The majority of properties fall within an accessible price range (below €4,500/m²).
 
 3. Synthèse
 

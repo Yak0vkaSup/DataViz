@@ -41,7 +41,8 @@ def update_departments(region):
     if region is None:
         return [], None
     departments = region_dept_commune_map[region]['departments']
-    department_options = [{'label': dept, 'value': dept} for dept in departments.keys()]
+    department_options = [{'label': f"{dept} ({details['code']})", 'value': dept}
+                          for dept, details in departments.items()]
     return department_options, None
 
 
@@ -57,7 +58,8 @@ def update_communes(department, region):
 
     # Get communes for the selected department
     communes = region_dept_commune_map[region]['departments'][department]['communes']
-    commune_options = [{'label': commune['name'], 'value': commune['name']} for commune in communes]
+    commune_options = [{'label': (commune['name'] + "-" + commune['code']),
+                        'value': commune['name']} for commune in communes]
     return commune_options, None
 
 
