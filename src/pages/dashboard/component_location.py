@@ -10,7 +10,6 @@ region_options = [{'label': region, 'value': region} for region in region_dept_c
 
 # Layout for the dropdowns
 def LocationComponent():
-    default_region = region_options[0]['value']  # Use the first region as default
     return html.Div(
         children=[
             html.H2('Select Region, Department, and Commune'),
@@ -42,7 +41,8 @@ def update_departments(region):
     if region is None:
         return [], None
     departments = region_dept_commune_map[region]['departments']
-    department_options = [{'label': dept, 'value': dept} for dept in departments.keys()]
+    department_options = [{'label': f"{dept} ({details['code']})", 'value': dept}
+                          for dept, details in departments.items()]
     return department_options, None
 
 
@@ -58,7 +58,8 @@ def update_communes(department, region):
 
     # Get communes for the selected department
     communes = region_dept_commune_map[region]['departments'][department]['communes']
-    commune_options = [{'label': commune['name'], 'value': commune['name']} for commune in communes]
+    commune_options = [{'label': (commune['name'] + "-" + commune['code']),
+                        'value': commune['name']} for commune in communes]
     return commune_options, None
 
 

@@ -33,21 +33,12 @@ def AboutPage():
                                     html.Li("Un diagramme circulaire affichant la proportion des différents types de propriétés."),
                                 ],
                             ),
-                            html.P(
-                                "Notre projet met en avant l'importance des données ouvertes pour favoriser la transparence et"
-                                " permettre des prises de décision basées sur les données."
-                            ),
-                            html.P(
-                                "Ce tableau de bord a été créé en suivant les meilleures pratiques en programmation Python,"
-                                " en prétraitement des données et en visualisation. Il illustre comment les données publiques"
-                                " peuvent être exploitées pour extraire des informations et les présenter de manière accessible."
-                            ),
                             html.H3("Livrables du Projet"),
                             html.Ul(
                                 children=[
                                     html.Li("Un tableau de bord entièrement fonctionnel et interactif lancé via `python main.py`"),
                                     html.Li("Un traitement complet des données grâce à des scripts Python"),
-                                    html.Li("Une documentation détaillée, y compris un fichier README et un rapport d'analyse"),
+                                    html.Li("Un un fichier README"),
                                 ],
                             ),
                             html.P(

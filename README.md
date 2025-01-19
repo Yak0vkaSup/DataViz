@@ -32,25 +32,11 @@ With the environment activated, install the project's dependencies using the `re
 pip install -r requirements.txt
 ```
 
-### Step 4: Download Data
-Download necessary data from endpoints.
-
-```bash
-python get_data.py
-```
-
-### Step 5: Preprocess Data
-Clean up data and save it inside data folder.
-
-```bash
-python preprocess_data.py
-```
-
 ## Usage
 To launch the dashboard, run the following command:
 
 ```bash
-python .\src\app.py
+python main.py
 ```
 
 Access the application in your web browser at `http://127.0.0.1:8050`.
@@ -67,3 +53,35 @@ To contribute or modify the project:
 2. Follow the structure provided in the `src/` directory for adding components or pages.
 3. Use `config.py` for project-specific settings.
 4. Document all changes thoroughly.
+
+## Analysis Report
+1. Context
+
+The dashboard provides an interactive visualization of real estate data in France, categorized by region, department, and communes, highlighting key metrics such as average price per square meter and geographic distributions. This report analyzes the main sections of the dashboard based on the visualizations provided.
+
+2. Section Analysis (Example with the Provence-Alpes-Côte d'Azure Region Selected)
+
+- Interactive Choropleth Map 
+  - The map highlights a notable variation in prices within the region. 
+  - East area, the Alpes Maritimes display significantly higher prices (data in red), while the land areas are less expensive (data in yellow or light orange).
+- Pie Chart of Property Types
+  - Displays the distribution of real estate types (apartments, houses, dependencies, etc.) in the Provence-Alpes-Côte d'Azure region.
+  - Houses represent a significant share of transactions (32,2%), followed by dependancies (32.2%) and appartment(28.9%). Commercial and industrial properties occupy a smaller share (6.15%).
+- Average Price Evolution Over Time
+  - Analyzes the evolution of average prices per square meter over time and identifies trends using a moving average.
+  - Prices show significant short-term variations, with notable spikes on certain dates. The 14-day moving average smooths fluctuations and reveals general trends. 
+- Price Distribution per Square Meter
+  - Visualizes the distribution of prices per square meter in the  Provence-Alpes-Côte d'Azure region.
+  - The distribution is asymmetric, with a mode around €3,000/m². A long tail to the right indicates high-end real estate with elevated prices. The majority of properties fall within an accessible price range (below €4,500/m²).
+
+3. Synthèse
+
+The choropleth map highlights significant disparities between Paris and its periphery, with much higher prices in central areas.
+The Île-de-France region remains marked by strong segmentation in the real estate market.
+LShort-term price variations call for deeper exploration of explanatory factors.
+Most properties are in accessible price ranges, but a portion of the market is dominated by high-end properties.
+
+
+
+## Copyright
+We solemnly declare that the code provided was produced by us.
