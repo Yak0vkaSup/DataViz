@@ -92,6 +92,7 @@ body {
     flex-direction: column;
     align-items: center;
     width: 100%;
+    padding:10px;
     max-width: 1200px;
     gap: 20px;
 }
@@ -153,3 +154,21 @@ body {
     width: 100%;
 }
 
+/*Chart and histogram */
+.chart-and-histogram-container {
+    display: flex;
+    /*justify-content: space-between;
+    align-items: flex-start;*/
+    gap: 20px; /* Space between the chart and histogram */
+    width: 100%;
+    margin: 0 auto;
+}
+
+.chart-section, .histogram-section {
+    flex: 1; /* Make both sections take equal space */
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 48%; /* Ensures each component takes less than half of the container */
+}
