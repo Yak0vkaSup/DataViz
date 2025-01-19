@@ -51,12 +51,13 @@ def main():
 
 
 if __name__ == "__main__":
-    # Check if the user wants to launch the app or prepare data
+
     if not os.path.exists(os.path.join(base_path, 'cleaned', 'full_with_region.pkl')):
         print("Data not found. Running data preparation...")
         main()
         from src.app import create_app
-
-    print("Launching app...")
-    app = create_app()
-    app.run_server(debug=False)
+    else :
+        from src.app import create_app
+        print("Launching app...")
+        app = create_app()
+        app.run_server(debug=False)
