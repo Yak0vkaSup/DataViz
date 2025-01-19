@@ -1,6 +1,6 @@
 import pandas as pd
 from dash import dcc, html, Input, Output, callback
-from src.utils.config import DATA_DIR, load_region_dept_commune_map
+from config import DATA_DIR, load_region_dept_commune_map
 import os
 
 DATA_FILE = os.path.join(DATA_DIR, 'full.pkl')
