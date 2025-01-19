@@ -78,7 +78,11 @@ def update_pie_chart(selected_location):
             }
         ],
         'layout': {
-            'title': title,
+            'title': {
+                'text': title,
+                'font': {'size': 14},  # Font size for the title
+                'x': 0.5,  # Center align the title
+            },
             'height': 400,
             'margin': {'l': 10, 'r': 10, 't': 50, 'b': 10},
         }
