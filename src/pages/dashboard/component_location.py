@@ -110,6 +110,5 @@ def save_selected_values(region, department, commune):
     if commune:
         display_text += f", Commune = {commune}"
 
-    return selected_data, display_text
-
+    return selected_data, ''
 

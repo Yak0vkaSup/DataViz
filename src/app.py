@@ -1,7 +1,6 @@
 import dash
 from dash.dependencies import Input, Output
 from dash import html, dcc
-from src.pages.home import HomePage
 from src.pages.about import AboutPage
 from src.pages.dashboard.layout import DashboardPage
 
@@ -26,15 +25,14 @@ def create_app():
     )
     def display_page(pathname):
         if pathname == '/':
-            return HomePage()
-        elif pathname == '/about':
             return AboutPage()
         elif pathname == '/dashboard':
             return DashboardPage()
         else:
             return html.H1('404 - Page not found', style={'textAlign': 'center'})
-
     return app
+
+
 # # Run the app
 # if __name__ == '__main__':
 #     app = create_app()

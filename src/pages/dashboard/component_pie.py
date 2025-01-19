@@ -12,8 +12,13 @@ def PieComponent():
     return html.Div(
         children=[
             html.H2('Pie Chart of Type Local'),
-            dcc.Graph(id='type-local-pie-chart'),
+            dcc.Graph(
+                id='type-local-pie-chart',
+                config={'displayModeBar': False},  # Hides the mode bar for a cleaner look
+                style={'height': '400px', 'width': '100%'},  # Adjust height and width
+            ),
         ],
+        className='pie-chart-container',  # Add a class for styling
     )
 
 @callback(
@@ -45,7 +50,7 @@ def update_pie_chart(selected_location):
         filtered_data = data[
             (data['code_departement'] == department_code)
         ]
-        title = f'Type Local Distribution for Departament {department}'
+        title = f'Type Local Distribution for Department {department}'
     else:
         departments = map[region]['departments']
         department_codes = [dept_info['code'] for dept_info in departments.values()]
@@ -74,7 +79,8 @@ def update_pie_chart(selected_location):
         ],
         'layout': {
             'title': title,
+            'height': 400,
+            'margin': {'l': 10, 'r': 10, 't': 50, 'b': 10},
         }
     }
     return figure
-
