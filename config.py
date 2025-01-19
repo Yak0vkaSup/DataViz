@@ -1,9 +1,9 @@
 import os
 import json
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-DATA_DIR = os.path.join(BASE_DIR, '../data/cleaned')
+DATA_DIR = os.path.join(BASE_DIR, 'data/cleaned')
 
 REGION_MAP_FILE = os.path.join(DATA_DIR, 'region_dept_commune_map.json')
 

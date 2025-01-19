@@ -1,14 +1,23 @@
+"""
+This module initializes the Dash application and sets up routing for pages.
+"""
+
 import dash
 from dash.dependencies import Input, Output
 from dash import html, dcc
 from src.pages.about import AboutPage
 from src.pages.dashboard.layout import DashboardPage
 
-# Initialize the app
+
 def create_app():
+    """
+    Create and configure the Dash app.
+
+    Returns:
+        dash.Dash: Configured Dash app instance.
+    """
     # Initialize the app
     app = dash.Dash(__name__, suppress_callback_exceptions=True)
-    server = app.server  # For deploying to a server
 
     # Define the app layout
     app.layout = html.Div(
@@ -26,14 +35,14 @@ def create_app():
     def display_page(pathname):
         if pathname == '/':
             return AboutPage()
-        elif pathname == '/dashboard':
+        if pathname == '/dashboard':
             return DashboardPage()
-        else:
-            return html.H1('404 - Page not found', style={'textAlign': 'center'})
+        return html.H1('404 - Page not found', style={'textAlign': 'center'})
+
     return app
 
 
-# # Run the app
+# # Uncomment to run the app
 # if __name__ == '__main__':
 #     app = create_app()
 #     app.run_server(debug=True)

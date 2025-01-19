@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 import folium
-from src.utils.config import load_region_dept_commune_map
+from config import load_region_dept_commune_map
 import json
 
 base_path = os.path.abspath('data')

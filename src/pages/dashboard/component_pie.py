@@ -1,6 +1,6 @@
 import pandas as pd
 from dash import dcc, html, Input, Output, callback
-from src.utils.config import DATA_DIR, load_region_dept_commune_map
+from config import DATA_DIR, load_region_dept_commune_map
 import os
 
 DATA_FILE = os.path.join(DATA_DIR, 'full.pkl')
@@ -78,7 +78,11 @@ def update_pie_chart(selected_location):
             }
         ],
         'layout': {
-            'title': title,
+            'title': {
+                'text': title,
+                'font': {'size': 14},  # Font size for the title
+                'x': 0.5,  # Center align the title
+            },
             'height': 400,
             'margin': {'l': 10, 'r': 10, 't': 50, 'b': 10},
         }

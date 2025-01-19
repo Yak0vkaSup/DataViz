@@ -1,6 +1,6 @@
 import os
 from dash import html, dcc, Input, Output, callback
-from src.utils.config import DATA_DIR
+from config import DATA_DIR
 
 def MapComponent():
     """

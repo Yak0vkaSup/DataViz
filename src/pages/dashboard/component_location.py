@@ -1,5 +1,5 @@
 from dash import dcc, html, Input, Output, callback
-from src.utils.config import load_region_dept_commune_map
+from config import load_region_dept_commune_map
 
 # Load the JSON map
 region_dept_commune_map = load_region_dept_commune_map()
